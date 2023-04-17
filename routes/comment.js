@@ -38,7 +38,9 @@ router.get("/:_postId/comments", async (req, res) => {
   const { _postId } = req.params;
 
   try {
-    const getComments = await Comment.find({ postId: _postId });
+    const getComments = await Comment.find({ postId: _postId }).sort({
+      created_at: -1,
+    });
     console.log(getComments);
 
     const allComments = getComments.map((getComment) => {

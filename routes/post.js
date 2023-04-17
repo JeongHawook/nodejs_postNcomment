@@ -6,7 +6,7 @@ const Post = require("../schemas/post");
 //get  Post //
 //////////////
 router.get("/", async (req, res) => {
-  const getPost = await Post.find({});
+  const getPost = await Post.find({}).sort({ created_at: -1 });
   const result = getPost.map((getpost) => {
     return {
       postId: getpost._id,
