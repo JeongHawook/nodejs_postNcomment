@@ -7,7 +7,6 @@ const router = express.Router({ mergeParams: true });
 //post comments//
 /////////////////
 router.post("/", async (req, res) => {
-  console.error();
   const { user, password, content } = req.body;
   const { _postId } = req.params;
 
