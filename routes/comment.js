@@ -1,31 +1,45 @@
 const express = require("express");
-const router = express.Router();
 const Post = require("../schemas/post");
 const Comment = require("../schemas/comment");
+const router = express.Router({ mergeParams: true });
 
 /////////////////
 //post comments//
 /////////////////
-router.post("/:_postId/comments", async (req, res) => {
+router.post("/", async (req, res) => {
+  console.error();
   const { user, password, content } = req.body;
   const { _postId } = req.params;
+
+  if (_postId.length !== 24) {
+    //길이 통제
+    return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
+  }
   if (!content) {
     return res.status(400).json({ message: "댓글을 내용을 입력해주세요" });
   }
-  if (!user || !password) {
+  if (
+    !user ||
+    !password ||
+    typeof password !== "string" ||
+    typeof user !== "string" ||
+    typeof content !== "string"
+  ) {
     return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
   }
 
   try {
     const checkPost = await Post.findById({ _id: _postId });
-
+    if (!checkPost) {
+      return res.status(400).json({ message: "게시글이 없습니다!" });
+    }
     const postComment = await Comment.create({
       postId: checkPost._id,
       user: user,
       password: password,
       content: content,
     });
-    res.json({ message: "댓글을 생성하였습니다" });
+    return res.json({ message: "댓글을 생성하였습니다" });
   } catch (err) {
     return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
   }
@@ -34,15 +48,21 @@ router.post("/:_postId/comments", async (req, res) => {
 ////////////////
 //get comments//
 ////////////////
-router.get("/:_postId/comments", async (req, res) => {
+router.get("/", async (req, res) => {
   const { _postId } = req.params;
+
+  if (_postId.length !== 24) {
+    //길이 통제
+    return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
+  }
 
   try {
     const getComments = await Comment.find({ postId: _postId }).sort({
       created_at: -1,
     });
-    console.log(getComments);
-
+    if (getComments.length < 1) {
+      return res.status(400).json({ message: "댓글이 아직 없습니다!" });
+    }
     const allComments = getComments.map((getComment) => {
       return {
         commentId: getComment._id,
@@ -53,18 +73,28 @@ router.get("/:_postId/comments", async (req, res) => {
     });
     return res.json({ data: allComments });
   } catch (err) {
-    res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
+    return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
   }
 });
 ///////////////////
 //update comments//
 ///////////////////
-router.put("/:_postId/comments/:_commentId", async (req, res) => {
+router.put("/:_commentId", async (req, res) => {
   const { _postId, _commentId } = req.params;
   const { password, content } = req.body;
 
+  if (_postId.length !== 24 || _commentId.length !== 24) {
+    //길이 통제
+    return res
+      .status(400)
+      .json({ message: "데이터 형식이 올바르지 않습니다1" });
+  }
   if (!content) {
     return res.status(400).json({ message: "댓글 내용을 입력해주세요." });
+  }
+
+  if (typeof password !== "string" || typeof content !== "string") {
+    return res.status(400).json({ message: "데이터형식이 옳바르지 않습니다" });
   }
 
   try {
@@ -77,19 +107,16 @@ router.put("/:_postId/comments/:_commentId", async (req, res) => {
     if (!getComment) {
       return res.status(404).json({ message: "댓글 조회에 실패하였습니다." });
     }
-    if (getComment.password == password) {
-      const updateComment = await Comment.updateOne(
-        { _id: getComment._id },
-        { content: content }
-      );
-
-      return res.json({ message: "댓글을 수정하셨습니다" });
-    } else {
+    if (getComment.password !== password) {
       return res.status(401).json({
-        message:
-          "데이터 형식이 올바르지 않습니다/ 개인적으로 비밀번호가 다릅니다",
+        message: "비밀번호가 다릅니다",
       });
     }
+    const updateComment = await Comment.updateOne(
+      { _id: getComment._id },
+      { content: content }
+    );
+    return res.json({ message: "댓글을 수정하셨습니다" });
   } catch (err) {
     return res
       .status(400)
@@ -100,12 +127,21 @@ router.put("/:_postId/comments/:_commentId", async (req, res) => {
 ///////////////////
 //delete comments//
 ///////////////////
-router.delete("/:_postId/comments/:_commentId", async (req, res) => {
+router.delete("/:_commentId", async (req, res) => {
   const { _postId, _commentId } = req.params;
   const { password } = req.body;
 
-  if (!password) {
-    return res.status(400).json({ message: "데이터 형식이 올바르지 않습니다" });
+  if (_postId.length !== 24 || _commentId.length !== 24) {
+    //길이 통제
+    return res
+      .status(400)
+      .json({ message: "데이터 형식이 올바르지 않습니다1" });
+  }
+
+  if (!password || typeof password !== "string") {
+    return res
+      .status(400)
+      .json({ message: "데이터 형식이 올바르지 않습니다2" });
   }
   try {
     const getComment = await Comment.findById({
@@ -115,15 +151,14 @@ router.delete("/:_postId/comments/:_commentId", async (req, res) => {
     if (!getComment) {
       return res.status(404).json({ message: "댓글 조회에 실패하였습니다." });
     }
-    if (getComment.password == password) {
-      await Comment.deleteOne({ _id: getComment._id });
-      return res.json({ message: "댓글을 삭제하셨습니다." });
-    } else {
+    if (getComment.password !== password) {
       return res.status(401).json({
         message:
           "데이터 형식이 올바르지 않습니다/ 개인적으로 비밀번호가 다릅니다.",
       });
     }
+    await Comment.deleteOne({ _id: getComment._id });
+    return res.json({ message: "댓글을 삭제하셨습니다." });
   } catch (err) {
     return res.status(400).json({
       message: "데이터 형식이 올바르지 않습니다.",
