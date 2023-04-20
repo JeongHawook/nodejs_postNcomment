@@ -3,11 +3,22 @@ const app = express();
 const port = 3300;
 const routes = require("./routes/index");
 const connect = require("./schemas");
+const errorHandler = require("errorhandler");
+const cookieParser = require("cookie-parser");
+const { swaggerUi, specs } = require("./modules/swagger");
 connect();
 
 app.use(express.json());
-
+app.use(express.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use((req, res, next) => {
+  console.log("Request URL:", req.originalUrl, " - ", new Date());
+  next();
+});
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/", routes);
+
+app.use(errorHandler());
 
 app.get("/", (req, res) => {
   res.send("게시물을 보기 위해 url에 /posts 를 추가해주세요!");
