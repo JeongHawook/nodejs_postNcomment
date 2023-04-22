@@ -1,14 +1,11 @@
 const express = require("express");
 const { Post, Comment, User } = require("../models");
 // const Comment = require("../schemas/comment");
-// const User = require("../schemas/user");
 const router = express.Router({ mergeParams: true });
 const authMiddleware = require("../middlewares/auth-middleware");
 const { MongooseError } = require("mongoose");
 
-/////////////////
-//post comments//
-/////////////////
+//post//
 router.post("/", authMiddleware, async (req, res) => {
   const { comment } = req.body;
   const { _postId } = req.params;
@@ -21,7 +18,7 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 
   try {
-    const checkPost = await Post.findOne({ where: { postId: _postId } });
+    const checkPost = await Post.findByPk(_postId);
     console.log(checkPost);
     if (!checkPost) {
       return res
@@ -29,7 +26,7 @@ router.post("/", authMiddleware, async (req, res) => {
         .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
-    const postComment = await Comment.create({
+    await Comment.create({
       postId: checkPost.postId,
       userId: userId,
       nickname: nickname,
@@ -49,14 +46,14 @@ router.post("/", authMiddleware, async (req, res) => {
   }
   //
 });
-////////////////
-//get comments//
-////////////////
+
+//get//
+
 router.get("/", async (req, res) => {
   const { _postId } = req.params;
 
   try {
-    const getPost = await Post.findOne({ postId: _postId });
+    const getPost = await Post.findByPk(_postId);
 
     if (!getPost) {
       return res
@@ -70,17 +67,6 @@ router.get("/", async (req, res) => {
       return res.status(400).json({ message: "댓글이 아직 없습니다!" });
     }
 
-    // const allComments = getComments.map((getComment) => {
-    //   return {
-    //     commentId: getComment._id,
-    //     userId: getComment.userId,
-    //     nickname: getComment.nickname,
-    //     comment: getComment.comment,
-    //     createdAt: getComment.createdAt,
-    //     updatedAt: getComment.updatedAt,
-    //   };
-    // });
-
     return res.json({ comments: getComments });
   } catch (err) {
     return res
@@ -88,9 +74,8 @@ router.get("/", async (req, res) => {
       .json({ errorMessage: "댓글 조회에 실패하였습니다." });
   }
 });
-///////////////////
-//update comments//
-///////////////////
+
+//update//
 router.put("/:_commentId", authMiddleware, async (req, res) => {
   const { _postId, _commentId } = req.params;
   const { comment } = req.body;
@@ -107,17 +92,14 @@ router.put("/:_commentId", authMiddleware, async (req, res) => {
   }
 
   try {
-    const getPost = Post.findOne({ postId: _postId });
+    const getPost = Post.findByPk(_postId);
     if (!getPost) {
       return res
         .status(404)
         .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
-    const getComment = await Comment.findOne({
-      _id: _commentId,
-      postId: _postId,
-    });
+    const getComment = await Comment.findByPk(_commentId);
 
     if (!getComment) {
       return res
@@ -129,49 +111,36 @@ router.put("/:_commentId", authMiddleware, async (req, res) => {
         .status(403)
         .json({ errorMessage: "댓글의 수정 권한이 존재하지 않습니다." });
     }
-    const updateComment = await Comment.updateOne(
-      { _id: getComment._id },
-      { comment: comment }
+    await Comment.update(
+      { comment: comment },
+      {
+        where: {
+          commentId: getComment.commentId,
+        },
+      }
     );
     return res.json({ message: "댓글을 수정하셨습니다" });
   } catch (err) {
-    if (err.name === "MongoServerError") {
-      return res
-        .status(400)
-        .json({ errorMessage: "댓글 수정이 정상적으로 처리되지 않았습니다." });
-    }
     return res
       .status(400)
       .json({ errorMessage: "댓글 수정에 실패하였습니다." });
   }
 });
 
-///////////////////
-//delete comments//
-///////////////////
+//delete//
 router.delete("/:_commentId", authMiddleware, async (req, res) => {
   const { _postId, _commentId } = req.params;
   const { nickname, userId } = res.locals.user;
 
-  // if (_postId.length !== 24 || _commentId.length !== 24) {
-  //   //길이 통제
-  //   return res
-  //     .status(400)
-  //     .json({ errorMessage: "데이터 형식이 올바르지 않습니다1" });
-  // }
-
   try {
-    const getPost = await Post.findOne({ postId: _postId });
+    const getPost = await Post.findByPk(_postId);
     if (!getPost) {
       return res
         .status(404)
         .json({ errorMessage: "게시글이 존재하지 않습니다." });
     }
 
-    const getComment = await Comment.findOne({
-      commentId: _commentId,
-      postId: _postId,
-    });
+    const getComment = await Comment.findByPk(_commentId);
     if (!getComment) {
       return res
         .status(404)
