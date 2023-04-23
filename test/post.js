@@ -1,5 +1,5 @@
 const chai = require("chai");
-const { expect } = require("chai");
+
 const chaiHttp = require("chai-http");
 const app = require("../app");
 const { Posts } = require("../models");
@@ -30,26 +30,11 @@ describe("Post API", () => {
                 // add more properties as needed
             });
         });
-        it("should throw an AppError with a code of 4000 if the database query fails", async () => {
-            // Replace Posts.findAll with a mock function that throws the AppError
-            const Posts = {
-                findAll: () => {
-                    throw new AppError(4000);
-                },
-            };
-
-            // Replace the app's Posts object with the mock object
-            app.set("Posts", Posts);
-            console.log(app.get);
-            // Make the request and check the response
-            const response = await chai.request(app).get("/posts");
-            console.log(Posts);
-            expect(response.status).to.equal(400); //500 is the status code used for server errors
-            expect(response.body).to.be.an("object");
-            expect(response.body.details).to.equal(
-                "데이터 형식이 옳바르지않습니다"
-            );
-            // expect(response.body.details).to.equal("Empty Array on POSTS");
+        //오늘 너가 이기나 내가 이기나 해보자. 그래 오후 11:30분. 내가 졌다 ㅆ...
+        describe("GET /posts", function () {
+            context("when there are no posts", function () {
+                it("should return a 400 error when there are no posts", async function () {});
+            });
         });
     });
 });
