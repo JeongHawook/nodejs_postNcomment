@@ -1,51 +1,39 @@
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const app = require("../app");
+const { Users } = require("../models");
 
+chai.should();
 chai.use(chaiHttp);
 
-describe("API Endpoints", () => {
-    let server;
-
-    before((done) => {
-        server = app.listen(3100, () => {
-            console.log("Server started on port 3000");
-            done();
-        });
-    });
-
-    after(() => {
-        server.close(() => {
-            console.log("Server stopped");
-        });
-    });
-
-    describe("POST /signup", () => {
-        it("should return a 201 status code when the request is successful", (done) => {
-            chai.request(app)
-                .post("posts/signup")
-                .send({
-                    nickname: "testuser",
-                    password: "testpassword",
-                    confirmPassword: "testpassword",
-                })
-                .end((err, res) => {
-                    chai.expect(res).to.have.status(201);
-                    done();
-                });
-        });
-    });
-
+describe("Auth API", () => {
     describe("POST /login", () => {
-        it("should return a token when the request is successful", (done) => {
-            chai.request(app)
-                .post("/login")
-                .send({ nickname: "testuser", password: "testpassword" })
-                .end((err, res) => {
-                    chai.expect(res).to.have.status(200);
-                    chai.expect(res.body).to.have.property("token");
-                    done();
-                });
+        it("should login and get JWT", async () => {
+            const response = await chai
+                .request(app)
+                .post("/auth/login")
+                .send({ nickname: "saroball3", password: "11111" });
+
+            response.should.have.status(200);
+            response.body.should.be.an("object");
+            response.body.should.have.property("token");
+            response.body.token.should.be.a("string");
+        });
+    });
+});
+
+describe("Auth API", () => {
+    describe("POST /signup", () => {
+        it("should signUp", async () => {
+            const response = await chai.request(app).post("/auth/signup").send({
+                nickname: "saroball4",
+                password: "11111",
+                confirmPassword: "11111",
+            });
+
+            response.should.have.status(201);
+            response.body.should.have.an("object");
+            response.body.should.have.property("message");
         });
     });
 });

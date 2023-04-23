@@ -8,7 +8,7 @@ const connect = require("./schemas");
 //const errorHandler = require("errorhandler");
 const cookieParser = require("cookie-parser");
 const { swaggerUi, specs } = require("./modules/swagger");
-connect();
+//connect();
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

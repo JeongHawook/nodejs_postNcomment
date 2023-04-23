@@ -52,15 +52,18 @@ router.post(
 );
 
 //get PostId//
-router.get("/:_postId", async (req, res) => {
-    const { _postId } = req.params;
+router.get(
+    "/:_postId",
+    tryCatch(async (req, res) => {
+        const { _postId } = req.params;
 
-    const getPostDetails = await Posts.findByPk(_postId);
+        const getPostDetails = await Posts.findByPk(_postId);
 
-    if (!getPostDetails) throw new Error(4000);
-
-    return res.json({ getPostDetails });
-});
+        if (!getPostDetails) throw new Error(4000);
+        console.log(typeof getPostDetails);
+        return res.json({ getPostDetails });
+    })
+);
 
 //PUT//
 router.put("/:_postId", authMiddleware, async (req, res) => {

@@ -18,30 +18,30 @@ router.post("/signup", async (req, res) => {
     const passwordRegex1 = /^\w{4,}$/;
     if (!nicknameRegex.test(nickname)) {
         return res
-            .status(412)
+            .status(401)
             .json({ errorMessage: "닉네임의 형식이 일치하지 않습니다." });
     }
 
     if (password !== confirmPassword) {
         return res
-            .status(412)
+            .status(402)
             .json({ errorMessage: "password가 일치하지 않습니다" });
     }
     if (!passwordRegex1.test(password)) {
         return res
-            .status(412)
+            .status(403)
             .json({ errorMessage: "패스워드 형식이 일치하지 않습니다" });
     }
     if (password.includes(nickname.toLowerCase()))
         return res
-            .status(412)
+            .status(405)
             .json({ errorMessage: "패스워드에 닉네임이 포함되어 있습니다." });
 
     const getUser = await Users.findOne({
         where: { nickname: nickname },
     });
     if (getUser)
-        return res.status(412).json({ errorMessage: "중복된 닉네임입니다." });
+        return res.status(406).json({ errorMessage: "중복된 닉네임입니다." });
 
     try {
         const bcryptPassword = await bcrypt.hash(password, 10);
@@ -52,7 +52,7 @@ router.post("/signup", async (req, res) => {
         return res.status(201).json({ message: "회원가입에 성공하셨습니다." });
     } catch (error) {
         return res
-            .status(400)
+            .status(490)
             .json({ errorMessage: "요청한 데이터 형식이 올바르지 않습니다.1" });
     }
 });
