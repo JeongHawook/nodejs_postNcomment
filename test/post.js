@@ -30,12 +30,8 @@ describe("Post API", () => {
                 // add more properties as needed
             });
         });
-        //오늘 너가 이기나 내가 이기나 해보자. 그래 오후 11:30분. 내가 졌다 ㅆ...
-        describe("GET /posts", function () {
-            context("when there are no posts", function () {
-                it("should return a 400 error when there are no posts", async function () {});
-            });
-        });
+        //오늘 너가 이기나 내가 이기나 해보자. 그래 오전 3:30분. 내가 졌다..허리 끊어지겠다
+        it("should return a 4000 error when there are no posts", async function () {});
     });
 });
 

@@ -20,6 +20,26 @@ describe("Auth API", () => {
             response.body.should.have.property("message");
         });
     });
+
+    it("should return an error when missing required fields", async () => {
+        const response = (await chai.request(app).post("/auth/signup")).send({
+            password: "11111",
+            confirmPassword: "11111",
+        });
+        response.should.have.status(400);
+        response.body.should.have.property("errorMessage");
+    });
+    it("should return an error when password is too short", async () => {
+        const response = (await chai.request(app).post("/auth/signup")).send({
+            nickname: "saroball5",
+            password: "11",
+            confirmPassword: "11",
+        });
+        response.should.have.status(401);
+        response.body.should.have.an("object");
+        response.body.should.have.property("message");
+    });
+    it("should return an error when password and confirmPassword arent in match", async () => {});
     after(async () => {
         await Users.destroy({ where: { nickname: "saroball4" } });
     });

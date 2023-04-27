@@ -3,7 +3,6 @@ const express = require("express");
 const router = express.Router();
 const { tryCatch } = require("../utils/tryCatch");
 const { Posts } = require("../models");
-
 const authMiddleware = require("../middlewares/auth-middleware");
 const AppError = require("../utils/customError");
 
@@ -28,15 +27,9 @@ router.post(
         const { title, content } = req.body;
         const { nickname, userId } = res.locals.user;
 
-        if (!title || typeof title !== "string") {
-            throw new AppError(203);
-        }
-        if (!content || typeof content !== "string") {
-            //params not available
-            return res
-                .status(412)
-                .json({ message: "게시글 내용의 형식이 일치하지 않습니다." });
-        }
+        if (!title || typeof title !== "string") throw new AppError(4006);
+
+        if (!content || typeof content !== "string") throw new AppError(4006);
 
         await Posts.create({
             userId: userId,
@@ -60,7 +53,7 @@ router.get(
         const getPostDetails = await Posts.findByPk(_postId);
 
         if (!getPostDetails) throw new Error(4000);
-        console.log(typeof getPostDetails);
+
         return res.json({ getPostDetails });
     })
 );
@@ -71,13 +64,9 @@ router.put("/:_postId", authMiddleware, async (req, res) => {
     const { title, content } = req.body;
     const { userId } = res.locals.user;
 
-    if (!title || typeof title !== "string") throw new AppError(4002);
+    if (!title || typeof title !== "string") throw new AppError(4006);
 
-    if (!content || typeof content !== "string")
-        //params not available
-        return res
-            .status(412)
-            .json({ message: "게시글 내용의 형식이 일치하지 않습니다." });
+    if (!content || typeof content !== "string") throw new AppError(4006);
 
     const postDetail = await Posts.findByPk(_postId);
 

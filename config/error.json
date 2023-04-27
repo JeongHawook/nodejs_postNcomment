@@ -1,47 +1,40 @@
 {
   "4000": {
-    "statusCode": 4000,
-    "message": "Empty Array on POSTS"
+    "message": "Empty Array on POSTS 4000-4010까지는 POST의 관한에러" 
+  },
+  "4001": {
+    "message": "Resource not found"
   },
   "4002": {
-    "statusCode": 4002,
     "message": "Error on Incoming Body of POSTS"
   },
   "4003": {
-    "statusCode": 4003,
     "message": "No Authorization"
   },
-    "5000": {
-    "statusCode": 5000,
-    "message": "Sequelize General Error"
+  "4004": {
+    "message": "Resource not found"
   },
-    "5001": {
-    "statusCode": 5001,
+  "4010": {
+    "message": "Empty Array on Comment 4010-4020은 comments에 대한 에러"
+  },
+  "4006": {
+    "message": "제목/게시글 형식이 일치하지 않습니다"
+  },
+  "4016": {
+    "message": "댓글 형식이 일치하지 않습니다" 
+  },
+  "5000": {
+    "message": "Sequelize General Error 5000-5010은 POSTS ORM 대한 에러"
+  },
+  "5001": {
     "message": "Sequelize Create Error"
   },
-    "5002": {
-    "statusCode": 5002,
+  "5002": {
     "message": "Sequelize Update Error"
   },
-    "5003": {
-    "statusCode": 5003,
-    "message": "Sequelize Destroy Error"
-  },
-    "4001": {
-    "statusCode": 4004,
-    "message": "Resource not found"
-  },
-    "4001": {
-    "statusCode": 4004,
-    "message": "Resource not found"
-  },
-    "4001": {
-    "statusCode": 4004,
-    "message": "Resource not found"
-  },
-    "4001": {
-    "statusCode": 4004,
-    "message": "Resource not found"
+  "5003": {
+    "message": "Sequelize Destroy Error 5010-5020은 Comments ORM 대한 에러"
   }
+
   
 }
